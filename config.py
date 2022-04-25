@@ -9,5 +9,5 @@ mariaDBConfig = {
     'port': 3306,
     'user': 'root',
     'password': 'Password123!',
-    'database': 'demo'
+    'database': 'tarkovdata'
 }
