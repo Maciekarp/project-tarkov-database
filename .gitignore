@@ -1,2 +1,10 @@
 # Folder containing the tarkov data
 /tarkovdata-master/
+
+# Folder containing the virtual python environment
+/venv/
+
+# Python files used for testing simple commands
+test.py
+/__pycache__/
+tempCodeRunnerFile.py
