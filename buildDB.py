@@ -12,3 +12,6 @@ def BuildTables():
     pass
 
 # Read and populate tables
+
+def Populate():
+    pass
