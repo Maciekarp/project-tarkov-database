@@ -1,11 +1,10 @@
-from cProfile import run
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from turtle import up, update
 import mariadb
 import config                   # file that contains info about database
 import buildDB                  # file containing commands to build database
+#from tkHyperlinkManager import HyperlinkManager
 
 # used to show a message to the user in a new window
 def Alert(message):

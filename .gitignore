@@ -8,3 +8,10 @@
 test.py
 /__pycache__/
 tempCodeRunnerFile.py
+
+# images used durring development
+*.png
+/tempPngs/
+
+# used to test and improve editor
+temp.md
