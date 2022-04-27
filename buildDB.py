@@ -166,13 +166,17 @@ def Populate(tables = "all"):
             query += "\", \"" + name + "\", \"" + shortname + "\", "
             query += "0, \"" + config.wiki + name.replace(" ", "_") + "\");"
 
-            err = config.ExecuteQuery(query)
+            if query.isascii() :
+                err = config.ExecuteQuery(query)
+            else:
+                print("Query:\n" + query + "\ncontains illigal characters")
+
             if err:
                 print(err)
                 print(query)
                 return -1
     
-        print(len(data), "rows added to maps table")
+        print(len(data), "rows added to items table")
     
 
 
