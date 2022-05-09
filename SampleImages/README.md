@@ -1,0 +1,1 @@
+## This folder contains sample images of the project used for the main README

@@ -289,11 +289,9 @@ def Populate(tables = "all"):
                     print(query)
                     return -1
         
-        print(len(questConnections))
         # goes through each connection updating foreign keys of previoulsy inserted quests
         for connection in questConnections:
             query = "UPDATE " + quests["name"] + " SET prev_quest_id = \"" + questConnections[connection] + "\" WHERE " + quests["pk"] + " = \"" + connection + "\";"
-            print(query)
             err = config.ExecuteQuery(query)
             if err and not "Duplicate entry" in str(err):
                 print(err)
