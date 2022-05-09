@@ -92,7 +92,7 @@ if __name__ == "__main__":
     queryLF.grid(row=0, column=1, pady= (10, 10), padx= (10, 10), sticky="nsew")
 
     queryVal = tk.StringVar()
-    queryVal.set("SELECT * FROM people")
+    queryVal.set("SELECT * FROM items")
     queryEntry = ttk.Entry(queryLF, textvariable=queryVal, width=30)
     queryEntry.grid(row=0, column= 0, pady= (10, 10), padx= (10, 10))
 

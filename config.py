@@ -1,5 +1,7 @@
-import mariadb
 # Python file with configs used for accessing files and the database
+# if database has different setting or location change 
+# MariadbConfig
+import mariadb
 
 # Path where files are located
 tarkovFilesPath = "tarkovdata-master/"

@@ -1,8 +1,9 @@
 # Python script that accesses an existing mariadb instance
+from lib2to3.pgen2.token import NEWLINE
 import config
 import json
 
-ID = "id CHAR(24) NOT NULL"
+ID = "id CHAR(24)"
 NAME = "name VARCHAR(100)"
 LINK = "link VARCHAR(200)"
 CURRENCY = "currency CHAR(3)"
@@ -179,13 +180,136 @@ def Populate(tables = "all"):
         print(len(data), "rows added to items table")
     
 
+    # populates quests table, all objective tables and adds to items table items that only exist
+    # within quests
+    if tables == "all" or "quests" in tables:
+        file = open(config.tarkovFilesPath + "quests.json", 'r', encoding='utf8')
+        data = json.load(file)
+        file.close()
+        
+        # id for the trader is 24 characters and starts with 1 for the sake of simplicity
+        numQuests = 0
+        numObjectives = 0
+        questConnections = {}   # Dictionary where key is the current quest and value is next quest
+        for quest in data:
+            
+            # Populates quests table
+            name = quest["title"].replace("\'", "\'\'").replace("\"", "\"\"")
+            #shortname = quest["locales"]["en"].replace("\'", "\'\'").replace("\"", "\"\"")
+
+            query = "INSERT INTO " + quests["name"] + " VALUES (\"" + str(4 * pow(10, 23) + quest["id"])
+            query += "\", \"" + str(pow(10, 23) + quest["giver"])
+            query += "\", \"" + name + "\", NULL, \""
+            query += quest["wiki"] + "\");"
+
+            if query.isascii() :
+                err = config.ExecuteQuery(query)
+                if err and not "Duplicate entry" in str(err):
+                    print(err)
+                    print(query)
+                    return -1
+                else:
+                    numQuests += 1
+            else:
+                print("Query:\n" + query + "\ncontains illigal characters")
+                continue
+            
+            # adds unlocks to quest connections to be updated after all quests are added
+            if quest["require"]["quests"]:
+                currQuest = quest["require"]["quests"][-1]
+                if type(currQuest) is list:
+                    currQuest = currQuest[-1]
+                questConnections[str(4 * pow(10, 23) + quest["id"])] = str(4 * pow(10, 23) + currQuest)
+            
+            # populates the objectives tables with objectves in the quest
+            for objective in quest["objectives"]:
+                tabletype = "INSERT INTO "
+                values = " VALUES (\"" + str(3 * pow(10, 23) + objective["id"]) + "\", \"" + str(4 * pow(10, 23) + quest["id"]) + "\""
+                if objective["type"] == "warning":
+                    tabletype += objective_warnings["name"]
+                    values += ", \"" + objective["target"].replace("\'", "\'\'").replace("\"", "\"\"") + "\""
+                elif objective["type"] == "reputation":
+                    tabletype += objective_reps["name"]
+                    values += ", \"" + str(pow(10, 23) + objective["target"]) + "\", " + str(objective["number"])
+                elif objective["type"] == "skill":
+                    tabletype += objective_skills["name"]
+                    values += ", \"" + objective["target"] + "\", " + str(objective["number"])
+                elif objective["type"] == "locate":
+                    tabletype += objective_locates["name"]
+                    location = "\"" + str(2 * pow(10, 23) + objective["location"]) + "\""
+                    if objective["location"] == -1:
+                        location = "NULL"
+                    values += ", \"" + objective["target"] + "\", " + str(objective["number"]) 
+                    values += ", " + location
+                elif objective["type"] == "kill":
+                    tabletype += objective_kills["name"]
+                    location = "\"" + str(2 * pow(10, 23) + objective["location"]) + "\""
+                    if objective["location"] == -1:
+                        location = "NULL"
+                    values += ", \"" + objective["target"] + "\", " + str(objective["number"]) 
+                    values += ", " + location
+                elif objective["type"] == "mark" or objective["type"] == "pickup" or objective["type"] == "place":
+                    tabletype += objective_use_items["name"]
+                    # if an object needs to be pucked up and the target is a quest specific item it needs to be added to the items table
+                    tool = ""
+                    if objective["type"] == "mark":
+                        tool = objective["tool"]
+                    else:
+                        tool = objective["target"]
+                        if len(tool) != 24:
+                            tool = tool.replace(" ", "")
+                            if len(tool) > 24:
+                                tool = tool[len(tool) - 24:]
+                            elif len(tool) < 24:
+                                tool = ("q" * (24 - len(tool))) + tool
+                        query = "INSERT INTO items VALUES(\"" + tool + "\", \"" + objective["target"] + "\", NULL, 1, NULL)"
+                        err = config.ExecuteQuery(query)
+                        if err and not "Duplicate entry" in str(err):
+                            print(err)
+                            print(query)
+                    values += ", \"" + tool + "\", " + str(objective["number"])
+                    values += ", \"" + str(2 * pow(10, 23) + objective["location"]) + "\", \"" + objective["type"] + "\""
+                elif objective["type"] == "find" or objective["type"] == "collect" or objective["type"] == "key":
+                    tabletype += objective_gets["name"]
+                    target = objective["target"]
+                    if type(target) is list:
+                        target = target[0]
+                    values += ", \"" + target + "\", " + str(objective["number"]) + ", \"" + objective["type"] + "\""
+                elif objective["type"] == "build":
+                    continue
+                else:
+                    print("Objective type \"" + objective["type"] + "\" does not exist in database")
+                    continue
+                
+                numObjectives += 1
+                query = tabletype + values + ");"
+                err = config.ExecuteQuery(query)
+                if err and not "Duplicate entry" in str(err):
+                    print(err)
+                    print(query)
+                    return -1
+        
+        print(len(questConnections))
+        # goes through each connection updating foreign keys of previoulsy inserted quests
+        for connection in questConnections:
+            query = "UPDATE " + quests["name"] + " SET prev_quest_id = \"" + questConnections[connection] + "\" WHERE " + quests["pk"] + " = \"" + connection + "\";"
+            print(query)
+            err = config.ExecuteQuery(query)
+            if err and not "Duplicate entry" in str(err):
+                print(err)
+                print(query)
+                return -1
+
+        print(numQuests, "rows added to quests table")
 
     return 1
 
     
 
 
-
-ClearDB()
-BuildTables()
-Populate()
+# used for debugging if buildDB is called on its own clears table and builds it
+if __name__ == "__main__":
+    ClearDB()
+    BuildTables()
+    Populate()
+    #Populate("quests")
