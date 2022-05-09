@@ -11,6 +11,7 @@ tempCodeRunnerFile.py
 
 # images used durring development
 *.png
+!demo.png
 /tempPngs/
 
 # used to test and improve editor
