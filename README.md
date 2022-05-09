@@ -1,5 +1,5 @@
 # Takov DB
-![](SampleImages/demo.png)
+![](https://github.com/UMBC-CMSC461-SP2022/project-tarkov-database/tree/main/SampleImages)
 
 ## Project Description
 This is a simple python app that provides an interface to populate and query a
