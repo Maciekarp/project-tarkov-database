@@ -42,18 +42,21 @@ def Run1():
 
 def Run2():
     query = ""
-    query += "SELECT traders.locale_name AS \"Trader Name\", quests.name AS \"Quest Name\", quests.link\n"
-    query += "FROM quests\n"
-    query += "LEFT JOIN traders ON quests.trader_id=traders.trader_id; "
+    query += "SELECT quests.name as \"Quest Name\", objective_use_items.type, items.name as \"Item Name\", objective_use_items.number, maps.name as \"Map Name\"\n"
+    query += "FROM objective_use_items\n"
+    query += "INNER JOIN items ON objective_use_items.item_id=items.item_id\n"
+    query += "LEFT JOIN maps ON objective_use_items.map_id=maps.map_id\n"
+    query += "INNER JOIN quests ON objective_use_items.quest_id=quests.quest_id;"
+    
     queryEntry.delete("1.0",tk.END)
     queryEntry.insert(tk.END, query)
     runQuery(query)
 
 def Run3():
     query = ""
-    query += "SELECT traders.locale_name AS \"Trader Name\", quests.name AS \"Quest Name\", quests.link\n"
-    query += "FROM quests\n"
-    query += "LEFT JOIN traders ON quests.trader_id=traders.trader_id; "
+    query += "SELECT curr.name as \"Quest\", needs.name as \"Requires\" , curr.link\n"
+    query += "FROM tarkovdata.quests curr\n"
+    query += "LEFT JOIN tarkovdata.quests needs on curr.prev_quest_id=needs.quest_id;"
     queryEntry.delete("1.0",tk.END)
     queryEntry.insert(tk.END, query)
     runQuery(query)
@@ -182,10 +185,10 @@ if __name__ == "__main__":
     q1Button = ttk.Button(interestingQueries, text="Quests with Traders",command=Run1)
     q1Button.grid(row=0, column=0, pady= (10, 10), padx= (10, 10))
 
-    q2Button = ttk.Button(interestingQueries, text="Quests with Objectives",command=Run2)
+    q2Button = ttk.Button(interestingQueries, text="Item Quests with Objectives",command=Run2)
     q2Button.grid(row=1, column=0, pady= (10, 10), padx= (10, 10))
 
-    q3Button = ttk.Button(interestingQueries, text="Quests With Objectives and Items",command=Run3)
+    q3Button = ttk.Button(interestingQueries, text="Quests and previous Quest",command=Run3)
     q3Button.grid(row=2, column=0, pady= (10, 10), padx= (10, 10))
 
 
