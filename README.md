@@ -1,6 +1,15 @@
 # Takov DB
 ![](SampleImages/demo.png)
 
+## Disclamer
+This was a project for my UMBC CMSC 461 Database Management Systems Class where I showed my knowledge about database design and SQL by creating a simple SQL database with a user interface application to interact with the database.
+
+The data to populate the database came from https://github.com/TarkovTracker/tarkovdata on March 28th 2022 mostlikely the linked repository has been updated so this application will likely not keep up with changes. The folder `tarkovdata-master` contains a copy of the repository during March 28th 2022.
+
+### Database Diagram
+![](SampleImages/DatabaseSchema.png)
+
+
 ## Project Description
 This is a simple python app that provides an interface to populate and query a
 database containing data from the game Escape from Tarkov
